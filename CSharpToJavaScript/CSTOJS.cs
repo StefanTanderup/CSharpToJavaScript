@@ -11,14 +11,26 @@ using Microsoft.CodeAnalysis.Text;
 using System.Text;
 using System.Runtime.CompilerServices;
 using System;
+using System.Text.RegularExpressions;
 
 namespace CSharpToJavaScript
 {
-	/// <summary>
-	/// Main type for CSharpToJavaScript.
-	/// </summary>
+    /// <summary>
+    /// Main type for CSharpToJavaScript.
+    /// </summary>
 	public class CSTOJS
 	{
+		const string LabelClass = @"/* eslint-disable */
+class Label {
+	name: string;
+	value: string;
+
+	constructor(name: string, value: string) {
+		this.name = name;
+		this.value = value;
+	}
+}
+		";
 		public CSTOJSOptions Options { get; set; } = new();
 
 		private Walker? _Walker = null;
@@ -64,7 +76,7 @@ namespace CSharpToJavaScript
 		/// <param name="path">Full path to cs file or to the folder with cs files.</param>
 		/// <param name="filename">Optional! Filename of a js file if you generating one file!</param>
 		/// <returns></returns>
-		public async Task GenerateOneAsync(string path, string? filename = null) 
+		public async Task GenerateOneAsync(string path, string? filename = null)
 		{
 			Assembly assembly = Assembly.GetEntryAssembly();
 			List<FileInfo> files = new();
@@ -73,7 +85,7 @@ namespace CSharpToJavaScript
 			{
 				files.Add(new FileInfo(path));
 			}
-			else 
+			else
 			{
 				DirectoryInfo folder = new(path);
 
@@ -103,9 +115,21 @@ namespace CSharpToJavaScript
 				if (filename != null)
 					pathCombined = Path.Combine(Options.OutPutPath, filename);
 				else
-					pathCombined = Path.Combine(Options.OutPutPath, file.Name.Replace(".cs", ".js"));
+					pathCombined = Path.Combine(Options.OutPutPath, file.Name.Replace(".cs", ".ts"));
 
-				await File.WriteAllTextAsync(pathCombined, _Walker.JSSB.ToString());
+
+				string patternForNestedClasses = @"class\s+(\w+)";
+				string output = Regex.Replace(_Walker.JSSB.ToString(), patternForNestedClasses, "$1 = new class");
+
+				string pattern = @"static Labels = new class";
+				string replacement = @"export class Labels {
+static Get = new class";
+
+
+                int index = Regex.Match(output, pattern).Index;
+				string result = output.Remove(index, pattern.Length).Insert(index, replacement);
+				result += "}";
+                await File.WriteAllTextAsync(pathCombined, LabelClass + result);
 
 				Log($"--- Done!");
 				Log($"--- Path: {pathCombined}");

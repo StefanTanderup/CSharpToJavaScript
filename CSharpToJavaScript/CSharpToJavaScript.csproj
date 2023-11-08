@@ -17,6 +17,8 @@
     <Title>CSharp to JavaScript</Title>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageIcon>CSTOJS_128.png</PackageIcon>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>LabelConverter</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

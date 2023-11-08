@@ -206,11 +206,12 @@ namespace CSharpToJavaScript
 						case SyntaxKind.BaseList:
 						case SyntaxKind.FieldDeclaration:
 						case SyntaxKind.ConstructorDeclaration:
-						case SyntaxKind.MethodDeclaration:
 						case SyntaxKind.PropertyDeclaration:
+						case SyntaxKind.ClassDeclaration:
 							Visit(asNode);
 							break;
-						default:
+						case SyntaxKind.MethodDeclaration:
+							break;						default:
 							_CSTOJS.Log($"asNode : {kind}");
 							break;
 					}
@@ -230,6 +231,8 @@ namespace CSharpToJavaScript
 						case SyntaxKind.ClassKeyword:
 						case SyntaxKind.IdentifierToken:
 							VisitToken(asToken);
+							break;
+						case SyntaxKind.PartialKeyword:
 							break;
 						default:
 							_CSTOJS.Log($"asToken : {kind}");
@@ -379,6 +382,8 @@ namespace CSharpToJavaScript
 						case SyntaxKind.WhileStatement:
 							Visit(asNode);
 							break;
+						case SyntaxKind.YieldReturnStatement:
+							break;
 						default:
 							_CSTOJS.Log($"asNode : {kind}");
 							break;
@@ -526,6 +531,8 @@ namespace CSharpToJavaScript
 								_UsedThis = false;
 								break;
 							}
+						case SyntaxKind.SimpleLambdaExpression:
+							break;
 						default:
 							_CSTOJS.Log($"asNode : {kind}");
 							break;
@@ -653,6 +660,8 @@ namespace CSharpToJavaScript
 						case SyntaxKind.Block:
 							Visit(asNode);
 							break;
+						case SyntaxKind.IdentifierName:
+							break;
 						default:
 							_CSTOJS.Log($"asNode : {kind}");
 							break;
@@ -721,7 +730,10 @@ namespace CSharpToJavaScript
 						case SyntaxKind.PrivateKeyword:
 							VisitLeadingTrivia(asToken);
 							break;
-						default:
+						case SyntaxKind.StaticKeyword:
+                        case SyntaxKind.ReadOnlyKeyword:
+							break;
+                        default:
 							_CSTOJS.Log($"asToken : {kind}");
 							break;
 					}
@@ -2110,7 +2122,7 @@ namespace CSharpToJavaScript
 
 								VisitLeadingTrivia(identifier);
 
-								JSSB.Append($"this.");
+								//JSSB.Append($"this.");
 								VisitToken(identifier.WithoutTrivia());
 
 								VisitTrailingTrivia(identifier);
@@ -2279,7 +2291,7 @@ namespace CSharpToJavaScript
 
 			if (symbol == null) 
 			{
-				_CSTOJS.Log($"WARNING! node: \"{node}\", symbol is null. USE \"CustomCSNamesToJS\"!");
+				//_CSTOJS.Log($"WARNING! node: \"{node}\", symbol is null. USE \"CustomCSNamesToJS\"!");
 				return false;
 			}
 
@@ -2449,7 +2461,7 @@ namespace CSharpToJavaScript
 						}
 					}
 				default:
-					_CSTOJS.Log($"WARNING! typeSymbol: \"{typeSymbol}\" Is not supported! USE \"CustomCSNamesToJS\"");
+					//_CSTOJS.Log($"WARNING! typeSymbol: \"{typeSymbol}\" Is not supported! USE \"CustomCSNamesToJS\"");
 					return false;
 			}
 		}
